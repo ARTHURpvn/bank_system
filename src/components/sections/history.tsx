@@ -1,6 +1,6 @@
 import { PiggyBankIcon } from "lucide-react";
 
-const Historys = () => {
+const History = () => {
   return (
     <div className="space-y-2 w-full">
       <div className="flex w-full justify-between text-white items-center px-4 h-14 rounded-md bg-[#1A1A1A]/80 ">
@@ -40,4 +40,4 @@ const Historys = () => {
   );
 };
 
-export default Historys;
+export default History;

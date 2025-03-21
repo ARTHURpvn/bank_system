@@ -1,0 +1,54 @@
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ReceiptTextIcon } from "lucide-react";
+
+interface BillingPopoverProps {
+  navigation: string;
+  handleNavigation: (navigation: string) => void;
+}
+
+const BillingPopover = ({
+  navigation,
+  handleNavigation,
+}: BillingPopoverProps) => {
+  const multas = 0;
+
+  return (
+    <Popover
+      open={navigation === "billing"}
+      onOpenChange={(open) => handleNavigation(open ? "billing" : "home")}
+    >
+      <PopoverTrigger asChild>
+        <Button variant={navigation === "billing" ? "activated" : "default"}>
+          <ReceiptTextIcon />
+          Multas
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 z-1000">
+        <div className="flex flex-col gap-4 w-full">
+          <div className="space-y-2">
+            <h4 className="font-medium leading-none">Multas</h4>
+          </div>
+          <div className="grid gap-2">
+            <div>
+              {multas > 0 ? (
+                <div className="flex w-full items-center justify-between">
+                  <p>Total: ${multas}</p>
+                  <Button variant={"green_action"}>Pagar</Button>
+                </div>
+              ) : (
+                <p>Não há multas pendentes</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+export default BillingPopover;
