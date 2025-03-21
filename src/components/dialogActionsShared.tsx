@@ -13,12 +13,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { VariantProps } from "class-variance-authority";
-import { HandCoinsIcon, HandshakeIcon, PiggyBankIcon } from "lucide-react";
+import { PenIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
 type valueProps = {
   name: string;
   icon?: React.ReactNode;
-  label: string;
+  labels?: string[];
   variant: VariantProps<typeof Button>["variant"];
   size?: VariantProps<typeof Button>["size"];
 };
@@ -26,50 +26,44 @@ const DialogActions = ({ name }: { name: string }) => {
   let value: valueProps;
 
   switch (name) {
-    case "Depositar":
+    case "Criar":
       value = {
-        name: "Depositar",
-        icon: <PiggyBankIcon className="size-8 text-[#2BFF00]" />,
-        label: "Valor",
+        name: "Criar Conta Compartilhada",
+        icon: <PlusIcon className="size-8 text-[#2BFF00]" />,
+        labels: ["Nome da Conta", "Meta"],
         variant: "green_action",
       };
       break;
-    case "Retirar":
+    case "Editar":
       value = {
         name: "Retirar",
-        icon: <HandCoinsIcon className="size-8 text-[#DC2424]" />,
-        label: "Valor",
+        icon: <PenIcon className="size-8 text-[#DC2424]" />,
+        labels: ["Nome da Conta", "Meta"],
         variant: "red_action",
       };
       break;
-    case "Adicionar":
+    case "Excluir":
       value = {
         name: "Adicionar",
-        label: "ID do Jogador",
+        icon: <Trash2Icon className="size-8 text-[#DC2424]" />,
+        labels: ["ID do Jogador"],
         variant: "green_action",
       };
       break;
-    case "Remover":
-      value = {
-        name: "Remover",
-        label: "ID do Jogador",
-        variant: "red_action",
-      };
-      break;
-
     default:
       value = {
-        name: "Transferir",
-        label: "ID do Jogador",
-        icon: <HandshakeIcon className="size-8 text-white" />,
-        variant: "white_action",
+        name: "Adicionar",
+        icon: <Trash2Icon className="size-8 text-[#DC2424]" />,
+        labels: ["ID do Jogador"],
+        variant: "green_action",
       };
+      break;
   }
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size={value.size ? value.size : "lg"} variant={value.variant}>
+        <Button size={"sm"} variant={value.variant}>
           {value.icon}
           {value.name}
         </Button>
@@ -85,8 +79,19 @@ const DialogActions = ({ name }: { name: string }) => {
         </DialogHeader>
         <div className="my-6 space-y-6">
           <div>
-            <Label>{value.label}</Label>
-            <Input type="number" placeholder="Insira o Valor" min={0} />
+            {name != "Excluir" ? (
+              value.labels?.map((label, index) => (
+                <div key={index}>
+                  <Label className="text-sm">{label}</Label>
+                  <Input placeholder={label} className="mt-2" />
+                </div>
+              ))
+            ) : (
+              <div>
+                <p>Deseja Excluir essa Conta?</p>
+                <p>Essa ação não poderá ser desfeita</p>
+              </div>
+            )}
           </div>
         </div>
         <DialogFooter className="w-full items-center">

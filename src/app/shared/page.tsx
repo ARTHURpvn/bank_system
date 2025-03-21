@@ -1,7 +1,8 @@
 "use client";
 
 import Header from "@/components/header";
-import History from "@/components/sections/history";
+import AccountShared from "@/components/sections/accountShared";
+import HistoryShared from "@/components/sections/historyShared";
 import HomeShared from "@/components/sections/homeShared";
 import { Button } from "@/components/ui/button";
 import { HistoryIcon, HomeIcon, ReceiptTextIcon, X } from "lucide-react";
@@ -48,7 +49,10 @@ export default function Home() {
               <HistoryIcon />
               Histórico
             </Button>
-            <Button>
+            <Button
+              variant={navigation == "account" ? "activated" : "default"}
+              onClick={() => handleNavigation("account")}
+            >
               <ReceiptTextIcon />
               Contas
             </Button>
@@ -58,7 +62,13 @@ export default function Home() {
           </nav>
         </header>
 
-        {navigation === "dashboard" ? <HomeShared /> : <History />}
+        {navigation === "dashboard" ? (
+          <HomeShared />
+        ) : navigation === "history" ? (
+          <HistoryShared />
+        ) : (
+          <AccountShared />
+        )}
       </main>
     </div>
   );

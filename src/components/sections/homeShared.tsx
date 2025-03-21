@@ -1,20 +1,19 @@
 import {
   HandCoinsIcon,
   PiggyBankIcon,
-  PlusIcon,
-  Trash2Icon,
   TrendingUpDown,
   UserRoundIcon,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import DialogActions from "../dialogActions";
 
 const HomeShared = () => {
   return (
     <div className="w-full justify-between flex">
       {/* Lado Esquerdo */}
       <div className="flex flex-col w-[35%]">
-        <div className="flex flex-col items-center gap-6 p-6 w-full rounded-md h-[60vh] bg-[#232323]/60">
+        <div className="flex flex-col items-center gap-6 p-6 w-full rounded-md h-[62.4vh] bg-[#232323]/60">
           <h1 className="text-3xl font-bold">PARTICIPANTES</h1>
 
           {/* Participantes */}
@@ -42,12 +41,9 @@ const HomeShared = () => {
           </div>
         </div>
         <div className="self-end mt-6 space-x-4">
-          <Button variant={"red_action"} className="bg-transparent">
-            <Trash2Icon /> Remover
-          </Button>
-          <Button variant={"activated"}>
-            <PlusIcon /> Adicionar
-          </Button>
+          <DialogActions name="Remover" />
+          <DialogActions name="Adicionar" />
+
         </div>
       </div>
 
