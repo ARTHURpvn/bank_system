@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DialogClose } from "@radix-ui/react-dialog";
 import { VariantProps } from "class-variance-authority";
 import { PenIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
@@ -28,32 +29,32 @@ const DialogActions = ({ name }: { name: string }) => {
   switch (name) {
     case "Criar":
       value = {
-        name: "Criar Conta Compartilhada",
-        icon: <PlusIcon className="size-8 text-[#2BFF00]" />,
+        name: "Criar Conta",
+        icon: <PlusIcon />,
         labels: ["Nome da Conta", "Meta"],
-        variant: "green_action",
+        variant: "outline",
       };
       break;
     case "Editar":
       value = {
-        name: "Retirar",
-        icon: <PenIcon className="size-8 text-[#DC2424]" />,
+        name: "Editar Conta",
+        icon: <PenIcon />,
         labels: ["Nome da Conta", "Meta"],
-        variant: "red_action",
+        variant: "ghost",
       };
       break;
     case "Excluir":
       value = {
-        name: "Adicionar",
-        icon: <Trash2Icon className="size-8 text-[#DC2424]" />,
+        name: "Deseja Excluir essa Conta?",
+        icon: <Trash2Icon />,
         labels: ["ID do Jogador"],
-        variant: "green_action",
+        variant: "destructive",
       };
       break;
     default:
       value = {
         name: "Adicionar",
-        icon: <Trash2Icon className="size-8 text-[#DC2424]" />,
+        icon: <Trash2Icon />,
         labels: ["ID do Jogador"],
         variant: "green_action",
       };
@@ -65,37 +66,44 @@ const DialogActions = ({ name }: { name: string }) => {
       <DialogTrigger asChild>
         <Button size={"sm"} variant={value.variant}>
           {value.icon}
-          {value.name}
+          {name == "Criar" ? name : ""}
         </Button>
       </DialogTrigger>
       <DialogContent className="fixed z-1000">
         <DialogHeader className="mb-6">
           <DialogTitle className="flex gap-4 justify-center items-center text-3xl">
-            {value.icon} {value.name}
+            {value.name}
           </DialogTitle>
           <DialogDescription className="hidden">
             Depositar dinheiro na Conta
           </DialogDescription>
         </DialogHeader>
         <div className="my-6 space-y-6">
-          <div>
-            {name != "Excluir" ? (
+          <div className="space-y-4">
+            {name != "Excluir" &&
               value.labels?.map((label, index) => (
                 <div key={index}>
                   <Label className="text-sm">{label}</Label>
-                  <Input placeholder={label} className="mt-2" />
+                  <Input
+                    placeholder={
+                      index == 0 ? "Insira o Nome da conta" : "Insira a Meta"
+                    }
+                    type={index == 0 ? "text" : "number"}
+                  />
                 </div>
-              ))
-            ) : (
-              <div>
-                <p>Deseja Excluir essa Conta?</p>
-                <p>Essa ação não poderá ser desfeita</p>
-              </div>
-            )}
+              ))}
           </div>
         </div>
         <DialogFooter className="w-full items-center">
-          <Button size={"lg"} variant={value.variant}>
+          {name == "Excluir" && (
+            <DialogClose asChild>
+              <Button size={"lg"} variant={"ghost"} className="border">
+                Cancelar
+              </Button>
+            </DialogClose>
+          )}
+
+          <Button size={"lg"} variant={value.variant == "ghost" ? "outline" : value.variant}>
             Confirmar
           </Button>
         </DialogFooter>
