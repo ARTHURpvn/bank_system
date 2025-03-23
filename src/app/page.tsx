@@ -11,7 +11,6 @@ import { useState } from "react";
 
 export default function Home() {
   const [navigation, setNavigation] = useState("home");
-
   const handleNavigation = (navigation: string) => setNavigation(navigation);
 
   return (

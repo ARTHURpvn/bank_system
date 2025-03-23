@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import {  Montserrat, Roboto } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -30,6 +31,7 @@ export default function RootLayout({
         className={`${roboto.className} ${montserrat.variable} antialiased dark`}
       >
         {children}
+        <Toaster />
       </body>
     </html>
   );

@@ -1,11 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DialogActions from "../dialogActionsShared";
+import { useRouter } from "next/navigation";
 
 type teamProps = {
   name: string;
-  id: string;
+  id: number;
+};
+
+type historyProps = {
+  type: string;
+  value: number;
+  date: string;
+  id: number;
 };
 
 export type accountProps = {
@@ -14,29 +22,31 @@ export type accountProps = {
   meta: number;
   balance: number;
   team: teamProps[];
+  history?: historyProps[];
 };
 
 const AccountShared = () => {
-  const [accounts, setAccounts] = useState<accountProps[]>([
-    {
-      id: 1,
-      name: "Minha conta",
-      meta: 1000,
-      balance: 500,
-      team: [{ name: "Arthur", id: "1" }],
-    },
-    {
-      id: 2,
-      name: "Minha segunda conta",
-      meta: 1000,
-      balance: 500,
-      team: [{ name: "Arthur", id: "1" }],
-    },
-  ]);
+  const router = useRouter();
+  const [accounts, setAccounts] = useState<accountProps[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("accounts");
+        return saved ? JSON.parse(saved) : [];
+      } catch (error) {
+        console.error("Erro ao carregar contas:", error);
+        return [];
+      }
+    }
+    return [];
+  });
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: number, e: React.MouseEvent) => {
+    // Impedir propagação do evento para o elemento pai
+    e.stopPropagation();
+
     const newAccounts = accounts.filter((account) => account.id !== id);
     setAccounts(newAccounts);
+    localStorage.setItem("accounts", JSON.stringify(newAccounts));
   };
 
   const handleCreate = ({ name, meta }: { name: string; meta: number }) => {
@@ -47,13 +57,20 @@ const AccountShared = () => {
       balance: 0,
       team: [],
     };
-    setAccounts([...accounts, newAccount]);
+    const updatedAccounts = [...accounts, newAccount];
+    setAccounts(updatedAccounts);
+    localStorage.setItem("accounts", JSON.stringify(updatedAccounts));
   };
 
   const handleEdit = (
     id: number,
-    { name, meta }: { name: string; meta: number }
+    { name, meta }: { name: string; meta: number },
+    e?: React.MouseEvent
   ) => {
+    if (e) {
+      e.stopPropagation();
+    }
+
     const newAccounts = accounts.map((account) => {
       if (account.id === id) {
         return {
@@ -64,7 +81,27 @@ const AccountShared = () => {
       }
       return account;
     });
+
     setAccounts(newAccounts);
+    localStorage.setItem("accounts", JSON.stringify(newAccounts));
+    if (id === accounts[0].id) {
+      localStorage.setItem("selectedAccount", JSON.stringify(newAccounts[0]));
+    }
+  };
+
+  useEffect(() => {
+    localStorage.setItem("accounts", JSON.stringify(accounts));
+  }, [accounts]);
+
+  const handleSelect = (id: number) => {
+    const selectedAccount = accounts.find((account) => account.id === id);
+    if (selectedAccount) {
+      localStorage.setItem("selectedAccount", JSON.stringify(selectedAccount));
+      localStorage.setItem("navigation", JSON.stringify("dashboard"));
+
+      // Atualiza a navegação e redireciona
+      router.push("/shared");
+    }
   };
 
   return (
@@ -84,13 +121,17 @@ const AccountShared = () => {
         {accounts.map((account) => (
           <div
             key={account.id}
-            className="flex w-full justify-between text-white items-center px-4 h-14 rounded-md bg-[#1A1A1A]/80"
+            className="flex w-full justify-between text-white items-center px-4 h-14 rounded-md bg-[#1A1A1A]/80 cursor-pointer"
+            onClick={() => handleSelect(account.id)}
           >
             <div className="flex gap-4 items-center">
               <p>{account.name}</p>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div
+              className="flex items-center gap-6"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex gap-2">
                 <DialogActions
                   name="Editar"
@@ -104,7 +145,7 @@ const AccountShared = () => {
                 />
                 <DialogActions
                   name="Excluir"
-                  action={() => handleDelete(account.id)}
+                  action={(data, e) => handleDelete(account.id, e!)}
                 />
               </div>
             </div>
