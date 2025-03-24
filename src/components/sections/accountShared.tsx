@@ -9,10 +9,10 @@ type teamProps = {
   id: number;
 };
 
-type historyProps = {
+export type historyProps = {
   type: string;
   value: number;
-  date: string;
+  date?: string;
   id: number;
 };
 

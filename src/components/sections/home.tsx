@@ -4,13 +4,33 @@ import ChartComponent from "@/components/chart";
 import DialogActions from "@/components/dialogActions";
 import {
   CircleDollarSignIcon,
+  HandCoinsIcon,
+  HandshakeIcon,
   LandmarkIcon,
   PiggyBankIcon,
   TrendingUpDown,
 } from "lucide-react";
 import Image from "next/image";
+import { historyProps } from "./accountShared";
+import { useState } from "react";
+
+type userInfoProps = {
+  name: string;
+  id: number;
+  money: number;
+  bank: number;
+  history: historyProps[];
+};
 
 const HomeComponent = () => {
+  const [userInfo, setUserInfo] = useState<userInfoProps>({
+    name: "SEU NOME",
+    id: 0,
+    money: 0,
+    bank: 0,
+    history: [{ type: "Deposito", value: 0, id: 0 }],
+  });
+
   return (
     <>
       <section className="w-full h-full">
@@ -31,14 +51,14 @@ const HomeComponent = () => {
                   <CircleDollarSignIcon />
                   <p className="text-xl">Bolso</p>
                 </div>
-                <p className="text-3xl font-bold">$ 999.999.999</p>
+                <p className="text-3xl font-bold">$ {userInfo.money}</p>
               </div>
               <div className="w-[48%] space-y-5 bg-[#106000]/20 p-2 h-30 bg-linear- border rounded-md">
                 <div className="flex items-center gap-2">
                   <LandmarkIcon />
                   <p className="text-xl">Banco</p>
                 </div>
-                <p className="text-3xl font-bold">$ 999</p>
+                <p className="text-3xl font-bold">$ {userInfo.bank}</p>
               </div>
             </section>
 
@@ -58,26 +78,54 @@ const HomeComponent = () => {
                 <p className="text-2xl">Últimas Transações</p>
               </div>
               <div className="space-y-2">
-                <div className="flex w-full justify-between text-[#2BFF00] items-center px-4 h-14 rounded-md bg-[#106000]/20 border border-[#106000]/50">
-                  <div className="flex gap-4 items-center">
-                    <div className="flex justify-center items-center size-8 bg-[#106000]/70 rounded-md">
-                      <PiggyBankIcon />
+                {userInfo.history.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex mb-2 w-full justify-between text-white items-center px-4 h-14 rounded-md bg-[#1A1A1A]/80"
+                  >
+                    <div className="flex gap-4 items-center">
+                      <div
+                        className={`flex justify-center items-center rounded-md size-8
+                        ${
+                          item.type === "Deposito"
+                            ? "text-[#2BFF00] bg-[#106000]/40"
+                            : "text-[#DC2424] bg-[#DC2424]/20"
+                        } `}
+                      >
+                        {item.type === "Deposito" ? (
+                          <PiggyBankIcon />
+                        ) : item.type === "Transferir" ? (
+                          <HandCoinsIcon />
+                        ) : (
+                          <HandshakeIcon />
+                        )}
+                      </div>
+                      <p>{item.type}</p>
                     </div>
-                    <p>Depositar</p>
-                  </div>
+                    <div className="flex items-center gap-6">
+                      {item.type === "Transferir" && (
+                        <div className="px-2 py-1 bg-[#525252]/40 rounded-md text-[#868686]">
+                          <p>ID {item.id}</p>
+                        </div>
+                      )}
 
-                  <p className="text-lg font-semibold">+12</p>
-                </div>
-                <div className="flex w-full justify-between text-[#2BFF00] items-center px-4 h-14 rounded-md bg-[#106000]/20 border border-[#106000]/50">
-                  <div className="flex gap-4 items-center">
-                    <div className="flex justify-center items-center size-8 bg-[#106000]/70 rounded-md">
-                      <PiggyBankIcon />
+                      <div className="w-26 text-end">
+                        <p
+                          className={`text-lg font-semibold
+                          ${
+                            item.type === "Deposito"
+                              ? "text-[#2BFF00]"
+                              : "text-[#DC2424]"
+                          }
+                          `}
+                        >
+                          {item.type === "Deposito" ? "+" : "-"}
+                          {item.value}
+                        </p>
+                      </div>
                     </div>
-                    <p>Depositar</p>
                   </div>
-
-                  <p className="text-lg font-semibold">+12</p>
-                </div>
+                ))}
               </div>
             </div>
           </section>

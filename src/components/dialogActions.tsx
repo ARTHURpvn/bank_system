@@ -129,7 +129,7 @@ const DialogActions = ({ name }: { name: string }) => {
   };
 
   // Função para lidar com depósitos
-  const handleDeposit = () => {
+  const handleDepositShared = () => {
     const value = parseFloat(inputValue);
     if (isNaN(value) || value <= 0) {
       toast.error("Por favor, insira um valor válido");
@@ -151,7 +151,7 @@ const DialogActions = ({ name }: { name: string }) => {
   };
 
   // Função para lidar com retiradas
-  const handleWithdraw = () => {
+  const handleWithdrawShared = () => {
     const value = parseFloat(inputValue);
     if (isNaN(value) || value <= 0) {
       toast.error("Por favor, insira um valor válido");
@@ -177,14 +177,16 @@ const DialogActions = ({ name }: { name: string }) => {
     setOpen(false);
   };
 
+
+
   // Escolher a ação com base no nome
   const handleConfirm = () => {
     switch (name) {
       case "Depositar":
-        handleDeposit();
+        handleDepositShared();
         break;
       case "Retirar":
-        handleWithdraw();
+        handleWithdrawShared();
         break;
       case "Adicionar":
         handleAddTeamMember();

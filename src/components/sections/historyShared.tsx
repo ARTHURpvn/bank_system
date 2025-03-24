@@ -62,7 +62,7 @@ const HistoryShared = () => {
               <p>ID {item.id}</p>
             </div>
             <div className="px-2 py-1 bg-[#525252]/40 rounded-md text-[#868686]">
-              {formatDate(item.date)}
+              {formatDate(item.date as string)}
             </div>
             <div className="w-26 text-end">
               <p
