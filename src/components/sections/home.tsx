@@ -12,7 +12,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { historyProps } from "./accountShared";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetchNui, useNuiEvent } from "@/hooks/nui";
 
 type userInfoProps = {
   name: string;
@@ -30,6 +31,27 @@ const HomeComponent = () => {
     bank: 0,
     history: [{ type: "Deposito", value: 0, id: 0 }],
   });
+
+  useEffect(() => {
+    const getUserInfo = async () => {
+      const result = await fetchNui(
+        "getUserInfos",
+        {},
+        {
+          name: "Will Jhon",
+          id: 1,
+          money: 10000,
+          bank: 20000,
+          history: [
+            { type: "Deposito", value: 220, id: 1 },
+            { type: "Transferir", value: 120, id: 2 },
+          ],
+        }
+      );
+      setUserInfo(result);
+    };
+    getUserInfo();
+  }, []);
 
   return (
     <>
