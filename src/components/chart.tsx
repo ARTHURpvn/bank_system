@@ -9,14 +9,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-];
+import { useEffect, useState } from "react";
+import { fetchNui } from "@/hooks/nui";
 
 const chartConfig = {
   desktop: {
@@ -26,6 +20,28 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function ChartComponent() {
+  const [chartData, setChartData] = useState<{ type: string; value: number }[]>([]);
+  useEffect(() => {
+    const getUserInfo = async () => {
+      const result = await fetchNui("getChartInfos", {}, [
+        {
+          type: "Deposito",
+          value: 220,
+        },
+        {
+          type: "Retirar",
+          value: 120,
+        },
+        {
+          type: "Retirar",
+          value: 190,
+        },
+      ]);
+
+      setChartData(result);
+    };
+    getUserInfo();
+  }, []);
   return (
     <Card className="h-full w-full">
       <CardContent>
@@ -40,7 +56,7 @@ export default function ChartComponent() {
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey="type"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
@@ -51,7 +67,7 @@ export default function ChartComponent() {
               content={<ChartTooltipContent hideLabel />}
             />
             <Line
-              dataKey="desktop"
+              dataKey="value"
               type="natural"
               stroke="var(--chart-1)"
               strokeWidth={2}

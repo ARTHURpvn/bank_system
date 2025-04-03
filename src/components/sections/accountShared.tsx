@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import DialogActions from "../dialogActionsShared";
 import { useRouter } from "next/navigation";
+import { fetchNui } from "@/hooks/nui";
 
 type teamProps = {
   name: string;
@@ -27,18 +28,39 @@ export type accountProps = {
 
 const AccountShared = () => {
   const router = useRouter();
-  const [accounts, setAccounts] = useState<accountProps[]>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("accounts");
-        return saved ? JSON.parse(saved) : [];
-      } catch (error) {
-        console.error("Erro ao carregar contas:", error);
-        return [];
-      }
-    }
-    return [];
-  });
+  const [accounts, setAccounts] = useState<accountProps[]>([]);
+  useEffect(() => {
+    const getUserInfo = async () => {
+      const result = await fetchNui("getUserInfos", {}, [
+        {
+          id: 1,
+          name: "Test Account",
+          meta: 1000,
+          balance: 0,
+          team: [
+            { id: 1, name: "Player 1" },
+            { id: 2, name: "Player 2" },
+          ],
+          history: [
+            {
+              type: "Deposito",
+              value: 220,
+              date: new Date().toISOString(),
+              id: 1,
+            },
+            {
+              type: "Retirar",
+              value: 120,
+              date: new Date().toISOString(),
+              id: 2,
+            },
+          ],
+        },
+      ]);
+      setAccounts(result);
+    };
+    getUserInfo();
+  }, []);
 
   const handleDelete = (id: number, e: React.MouseEvent) => {
     // Impedir propagação do evento para o elemento pai

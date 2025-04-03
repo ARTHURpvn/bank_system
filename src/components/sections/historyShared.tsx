@@ -27,6 +27,11 @@ const HistoryShared = () => {
 
   // Formatando data
   const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      console.log("Data inválida:", dateString);
+      return "Data inválida";
+    }
     return new Intl.DateTimeFormat("pt-BR", {
       day: "2-digit",
       month: "numeric",
@@ -34,7 +39,7 @@ const HistoryShared = () => {
       hour: "2-digit",
       minute: "2-digit",
       timeZone: "America/Sao_Paulo",
-    }).format(new Date(dateString));
+    }).format(date);
   };
 
   return (
