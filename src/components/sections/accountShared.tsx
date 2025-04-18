@@ -31,7 +31,7 @@ const AccountShared = () => {
   const [accounts, setAccounts] = useState<accountProps[]>([]);
   useEffect(() => {
     const getUserInfo = async () => {
-      const result = await fetchNui("getUserInfos", {}, [
+      const result = await fetchNui("getSharedAccounts", {}, [
         {
           id: 1,
           name: "Test Account",

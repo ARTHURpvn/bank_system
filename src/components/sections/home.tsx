@@ -13,7 +13,7 @@ import {
 import Image from "next/image";
 import { historyProps } from "./accountShared";
 import { useEffect, useState } from "react";
-import { fetchNui, useNuiEvent } from "@/hooks/nui";
+import { fetchNui } from "@/hooks/nui";
 
 type userInfoProps = {
   name: string;

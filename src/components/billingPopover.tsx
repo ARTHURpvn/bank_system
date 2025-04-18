@@ -4,7 +4,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { fetchNui } from "@/hooks/nui";
 import { ReceiptTextIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface BillingPopoverProps {
   navigation: string;
@@ -15,7 +17,15 @@ const BillingPopover = ({
   navigation,
   handleNavigation,
 }: BillingPopoverProps) => {
-  const multas = 0;
+  const [multas, setMultas] = useState(0);
+
+  useEffect(() => {
+    const getFines = async () => {
+      const response = await fetchNui("getFines", {}, 100);
+      setMultas(response);
+    };
+    getFines();
+  }, []);
 
   return (
     <Popover
