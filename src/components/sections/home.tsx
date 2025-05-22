@@ -13,7 +13,7 @@ import {
 import Image from "next/image";
 import { historyProps } from "./accountShared";
 import { useEffect, useState } from "react";
-import { fetchNui } from "@/hooks/nui";
+import { fetchNui, useNuiEvent } from "@/hooks/nui";
 
 type userInfoProps = {
   name: string;
@@ -32,9 +32,10 @@ const HomeComponent = () => {
     history: [{ type: "Deposito", value: 0, id: 0 }],
   });
 
+  // Buscar informações do usuário ao montar
   useEffect(() => {
     const getUserInfo = async () => {
-      const result = await fetchNui(
+      const result = await fetchNui<userInfoProps>(
         "getUserInfos",
         {},
         {
@@ -52,6 +53,11 @@ const HomeComponent = () => {
     };
     getUserInfo();
   }, []);
+
+  // Atualizar informações do usuário em tempo real via evento do backend
+  useNuiEvent<userInfoProps>("updateUserInfos", (data) => {
+    setUserInfo(data);
+  });
 
   return (
     <>

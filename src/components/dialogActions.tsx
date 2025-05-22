@@ -23,6 +23,7 @@ import {
 import { useEffect, useState } from "react";
 import { accountProps } from "./sections/accountShared";
 import { toast } from "sonner";
+import { fetchNui, useNuiEvent } from "@/hooks/nui";
 
 type valueProps = {
   name: string;
@@ -32,36 +33,60 @@ type valueProps = {
   size?: VariantProps<typeof Button>["size"];
 };
 
-interface TeamMember {
+type TeamMember = {
   id: number;
   name: string;
   meta: number;
   balance: number;
-}
+};
 
 const DialogActions = ({ name }: { name: string }) => {
   const [account, setAccount] = useState<accountProps | null>(null);
   const [open, setOpen] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-
-  // Função para carregar dados da conta do localStorage
-  const loadAccountData = () => {
-    const savedNavigation = localStorage.getItem("selectedAccount");
-    if (savedNavigation) {
-      try {
-        setAccount(JSON.parse(savedNavigation));
-      } catch (error) {
-        console.error("Erro ao analisar a navegação salva:", error);
-      }
-    }
-  };
+  const [inputValue, setInputValue] = useState<string>("");
 
   useEffect(() => {
-    loadAccountData();
-  }, [open]);
+    const fetchData = async () => {
+      const data = await fetchNui<accountProps>(
+        "getSharedAccounts",
+        {},
+        {
+          id: 1,
+          name: "Test Account",
+          meta: 1000,
+          balance: 0,
+          team: [
+            { id: 1, name: "Player 1", meta: 0, balance: 0 },
+            { id: 2, name: "Player 2", meta: 0, balance: 0 },
+          ],
+          history: [
+            {
+              type: "Deposito",
+              value: 220,
+              date: new Date().toISOString(),
+              id: 1,
+            },
+            {
+              type: "Retirar",
+              value: 120,
+              date: new Date().toISOString(),
+              id: 2,
+            },
+          ],
+        }
+      );
+      setAccount(data);
+    };
+    fetchData();
+  }, []);
+
+  // Atualizar o estado da conta quando os dados mudarem
+  useNuiEvent<accountProps>("updateSharedAccount", (data) => {
+    setAccount(data);
+  });
 
   // Função para adicionar uma pessoa ao time
-  const handleAddTeamMember = () => {
+  const handleAddTeamMember = async () => {
     if (!account) return;
 
     const id = parseInt(inputValue);
@@ -72,34 +97,36 @@ const DialogActions = ({ name }: { name: string }) => {
     }
 
     // Verificar se o ID já existe na equipe
-    if (account.team.some((member) => member.id === id)) {
+    if (account.team && account.team.some((member) => member.id === id)) {
       toast.error("Um membro com este ID já existe na equipe");
       return;
     }
 
-    // Criar novo membro com nome padrão
-    const newMember: TeamMember = {
-      id: id,
-      name: `Jogador ${id}`, // Nome padrão
-      meta: 0,
-      balance: 0,
-    };
-
-    const updatedAccount = {
-      ...account,
-      team: [...account.team, newMember],
-    };
-
-    // Atualizar estado e localStorage
-    setAccount(updatedAccount);
-    localStorage.setItem("selectedAccount", JSON.stringify(updatedAccount));
-    toast.success(`Jogador ${id} adicionado com sucesso`);
-    setInputValue("");
-    setOpen(false);
+    // Chama o backend para adicionar o membro
+    try {
+      const updatedAccount = await fetchNui<accountProps>(
+        "addSharedTeamMember",
+        {
+          accountId: account.id,
+          member: {
+            id,
+            name: `Jogador ${id}`,
+            meta: 0,
+            balance: 0,
+          } as TeamMember,
+        }
+      );
+      if (updatedAccount) setAccount(updatedAccount);
+      toast.success(`Jogador ${id} adicionado com sucesso`);
+      setInputValue("");
+      setOpen(false);
+    } catch (error) {
+      toast.error("Erro ao adicionar membro");
+    }
   };
 
   // Função para remover uma pessoa do time
-  const handleRemoveTeamMember = () => {
+  const handleRemoveTeamMember = async () => {
     if (!account) return;
 
     const id = parseInt(inputValue);
@@ -110,26 +137,31 @@ const DialogActions = ({ name }: { name: string }) => {
     }
 
     // Verificar se o ID existe na equipe
-    if (!account.team.some((member) => member.id === id)) {
+    if (!account.team || !account.team.some((member) => member.id === id)) {
       toast.error("Nenhum membro com este ID foi encontrado na equipe");
       return;
     }
 
-    const updatedAccount = {
-      ...account,
-      team: account.team.filter((member) => member.id !== id),
-    };
-
-    // Atualizar estado e localStorage
-    setAccount(updatedAccount);
-    localStorage.setItem("selectedAccount", JSON.stringify(updatedAccount));
-    toast.success(`Jogador ${id} removido com sucesso`);
-    setInputValue("");
-    setOpen(false);
+    // Chama o backend para remover o membro
+    try {
+      const updatedAccount = await fetchNui<accountProps>(
+        "removeSharedTeamMember",
+        {
+          accountId: account.id,
+          memberId: id,
+        }
+      );
+      if (updatedAccount) setAccount(updatedAccount);
+      toast.success(`Jogador ${id} removido com sucesso`);
+      setInputValue("");
+      setOpen(false);
+    } catch (error) {
+      toast.error("Erro ao remover membro");
+    }
   };
 
   // Função para lidar com depósitos
-  const handleDepositShared = () => {
+  const handleDepositShared = async () => {
     const value = parseFloat(inputValue);
     if (isNaN(value) || value <= 0) {
       toast.error("Por favor, insira um valor válido");
@@ -138,20 +170,25 @@ const DialogActions = ({ name }: { name: string }) => {
 
     if (!account) return;
 
-    const updatedAccount = {
-      ...account,
-      balance: account.balance + value,
-    };
-
-    setAccount(updatedAccount);
-    localStorage.setItem("selectedAccount", JSON.stringify(updatedAccount));
-    toast.success(`Depósito de ${value} realizado com sucesso`);
-    setInputValue("");
-    setOpen(false);
+    try {
+      const updatedAccount = await fetchNui<accountProps>(
+        "depositSharedAccount",
+        {
+          accountId: account.id,
+          value,
+        }
+      );
+      if (updatedAccount) setAccount(updatedAccount);
+      toast.success(`Depósito de ${value} realizado com sucesso`);
+      setInputValue("");
+      setOpen(false);
+    } catch (error) {
+      toast.error("Erro ao depositar");
+    }
   };
 
   // Função para lidar com retiradas
-  const handleWithdrawShared = () => {
+  const handleWithdrawShared = async () => {
     const value = parseFloat(inputValue);
     if (isNaN(value) || value <= 0) {
       toast.error("Por favor, insira um valor válido");
@@ -165,19 +202,22 @@ const DialogActions = ({ name }: { name: string }) => {
       return;
     }
 
-    const updatedAccount = {
-      ...account,
-      balance: account.balance - value,
-    };
-
-    setAccount(updatedAccount);
-    localStorage.setItem("selectedAccount", JSON.stringify(updatedAccount));
-    toast.success(`Retirada de ${value} realizada com sucesso`);
-    setInputValue("");
-    setOpen(false);
+    try {
+      const updatedAccount = await fetchNui<accountProps>(
+        "withdrawSharedAccount",
+        {
+          accountId: account.id,
+          value,
+        }
+      );
+      if (updatedAccount) setAccount(updatedAccount);
+      toast.success(`Retirada de ${value} realizada com sucesso`);
+      setInputValue("");
+      setOpen(false);
+    } catch (error) {
+      toast.error("Erro ao retirar");
+    }
   };
-
-
 
   // Escolher a ação com base no nome
   const handleConfirm = () => {

@@ -11,52 +11,37 @@ import DialogActions from "../dialogActions";
 import { useEffect, useState } from "react";
 import { accountProps } from "./accountShared";
 import ActionsShared from "../actionsShared";
+import { fetchNui, useNuiEvent } from "@/hooks/nui";
 
 const HomeShared = () => {
   const [account, setAccount] = useState<accountProps>();
 
-  // Função para carregar dados da conta do localStorage
-  const loadAccountData = () => {
-    const savedNavigation = localStorage.getItem("selectedAccount");
-    if (savedNavigation) {
-      try {
-        setAccount(JSON.parse(savedNavigation));
-      } catch (error) {
-        console.error("Erro ao analisar a navegação salva:", error);
-      }
-    }
+  // Buscar dados do backend ao montar
+  const loadAccountData = async () => {
+    const data = await fetchNui<accountProps>("getSharedAccount");
+    setAccount(data);
   };
 
-  // Carregar dados iniciais
   useEffect(() => {
     loadAccountData();
-
-    // Adicionar um event listener para detectar mudanças no localStorage
-    window.addEventListener("storage", loadAccountData);
-    // Atualizar os valores da conta selecionada para sempre que o componente for montado
-
-    // Função personalizada para detectar mudanças no localStorage
-    const originalSetItem = localStorage.setItem;
-    localStorage.setItem = function (key, value) {
-      // Chamar a implementação original
-      originalSetItem.apply(this, [key, value]);
-
-      // Disparar um evento personalizado
-      const event = new Event("localStorageChange");
-      window.dispatchEvent(event);
-    };
-
-    // Adicionar listener para o evento personalizado
-    window.addEventListener("localStorageChange", loadAccountData);
-
-    // Limpeza ao desmontar o componente
-    return () => {
-      window.removeEventListener("storage", loadAccountData);
-      window.removeEventListener("localStorageChange", loadAccountData);
-      // Restaurar a função original do localStorage
-      localStorage.setItem = originalSetItem;
-    };
   }, []);
+
+  // Atualizar conta em tempo real via evento do backend
+  useNuiEvent<accountProps>("updateSharedAccount", (data) => {
+    setAccount(data);
+  });
+
+  // Exemplo de Deposito
+  const handleDeposit = async (amount: number) => {
+    try {
+      const updated = await fetchNui<accountProps>("depositSharedAccount", {
+        amount,
+      });
+      setAccount(updated);
+    } catch (error) {
+      console.error("Erro ao depositar:", error);
+    }
+  };
 
   const historyList = () => {
     const history = account?.history ?? [];

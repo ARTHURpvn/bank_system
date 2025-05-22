@@ -4,7 +4,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { fetchNui } from "@/hooks/nui";
+import { fetchNui, useNuiEvent } from "@/hooks/nui";
 import { ReceiptTextIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -17,15 +17,20 @@ const BillingPopover = ({
   navigation,
   handleNavigation,
 }: BillingPopoverProps) => {
-  const [multas, setMultas] = useState(0);
+  const [multas, setMultas] = useState<number>(0);
 
   useEffect(() => {
     const getFines = async () => {
-      const response = await fetchNui("getFines", {}, 100);
+      const response = await fetchNui<number>("getFines", {}, 100);
       setMultas(response);
     };
     getFines();
   }, []);
+
+  // Atualizar multas em tempo real via evento do backend
+  useNuiEvent<number>("updateFines", (data) => {
+    setMultas(data);
+  });
 
   return (
     <Popover

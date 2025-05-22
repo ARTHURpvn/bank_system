@@ -5,6 +5,7 @@ import { HistoryIcon, HomeIcon, ReceiptTextIcon, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { accountProps } from "./accountShared";
+import { fetchNui, useNuiEvent } from "@/hooks/nui";
 
 interface HeaderProps {
   navigation: string;
@@ -12,31 +13,53 @@ interface HeaderProps {
 }
 
 const HeaderShared = ({ navigation, handleNavigation }: HeaderProps) => {
-  const [account, setAccount] = useState<accountProps>();
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const savedNavigation = localStorage.getItem("selectedAccount");
+  const [account, setAccount] = useState<accountProps | undefined>(undefined);
 
-      if (savedNavigation) {
-        setAccount(JSON.parse(savedNavigation));
+  useEffect(() => {
+    const fetchData = async () => {
+      // Pode retornar um array ou objeto, depende do backend
+      const data = await fetchNui<accountProps | accountProps[]>(
+        "getSharedAccounts",
+        {},
+        {
+          id: 1,
+          name: "Test Account",
+          meta: 1000,
+          balance: 0,
+          team: [
+            { id: 1, name: "Player 1" },
+            { id: 2, name: "Player 2" },
+          ],
+          history: [
+            {
+              type: "Deposito",
+              value: 220,
+              date: new Date().toISOString(),
+              id: 1,
+            },
+            {
+              type: "Retirar",
+              value: 120,
+              date: new Date().toISOString(),
+              id: 2,
+            },
+          ],
+        }
+      );
+      // Se vier array, pega o primeiro
+      if (Array.isArray(data)) {
+        setAccount(data[0]);
+      } else {
+        setAccount(data);
       }
     };
-    handleStorageChange();
-  }, [handleNavigation]);
+    fetchData();
+  }, []);
 
-  useEffect(() => {
-    const savedNavigation = localStorage.getItem("navigation");
-    if (savedNavigation) {
-      try {
-        const parsedNavigation = JSON.parse(savedNavigation);
-        if (parsedNavigation) {
-          handleNavigation(parsedNavigation);
-        }
-      } catch (error) {
-        console.error("Erro ao analisar a navegação salva:", error);
-      }
-    }
-  }, [handleNavigation]);
+  // Atualiza o estado da conta em tempo real via evento do backend
+  useNuiEvent<accountProps>("updateSharedAccount", (data) => {
+    setAccount(data);
+  });
 
   return (
     <header className="flex items-center justify-between w-full">

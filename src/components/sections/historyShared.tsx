@@ -4,26 +4,51 @@ import { HandCoinsIcon, PiggyBankIcon } from "lucide-react";
 import { accountProps } from "./accountShared";
 import { useEffect, useState } from "react";
 import { ScrollArea } from "../ui/scroll-area";
+import { fetchNui, useNuiEvent } from "@/hooks/nui";
 
 const HistoryShared = () => {
   const [account, setAccount] = useState<accountProps>();
 
-  // Função para carregar dados da conta do localStorage
-  const loadAccountData = () => {
-    const savedNavigation = localStorage.getItem("selectedAccount");
-    if (savedNavigation) {
-      try {
-        setAccount(JSON.parse(savedNavigation));
-      } catch (error) {
-        console.error("Erro ao analisar a navegação salva:", error);
-      }
-    }
-  };
-
   // Carregar dados iniciais
   useEffect(() => {
-    loadAccountData();
+    const fetchData = async () => {
+      const data = await fetchNui<accountProps>(
+        "getSharedAccounts",
+        {},
+        {
+          id: 1,
+          name: "Test Account",
+          meta: 1000,
+          balance: 0,
+          team: [
+            { id: 1, name: "Player 1" },
+            { id: 2, name: "Player 2" },
+          ],
+          history: [
+            {
+              type: "Deposito",
+              value: 220,
+              date: new Date().toISOString(),
+              id: 1,
+            },
+            {
+              type: "Retirar",
+              value: 120,
+              date: new Date().toISOString(),
+              id: 2,
+            },
+          ],
+        }
+      );
+      setAccount(data);
+    };
+    fetchData();
   }, []);
+
+  // Atualizar conta em tempo real via evento do backend
+  useNuiEvent<accountProps>("updateSharedAccount", (data) => {
+    setAccount(data);
+  });
 
   // Formatando data
   const formatDate = (dateString: string) => {

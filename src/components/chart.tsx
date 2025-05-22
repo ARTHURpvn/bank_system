@@ -10,7 +10,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { useEffect, useState } from "react";
-import { fetchNui } from "@/hooks/nui";
+import { fetchNui, useNuiEvent } from "@/hooks/nui";
 
 const chartConfig = {
   desktop: {
@@ -19,11 +19,14 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+type ChartData = { type: string; value: number };
+
 export default function ChartComponent() {
-  const [chartData, setChartData] = useState<{ type: string; value: number }[]>([]);
+  const [chartData, setChartData] = useState<ChartData[]>([]);
+
   useEffect(() => {
-    const getUserInfo = async () => {
-      const result = await fetchNui("getChartInfos", {}, [
+    const getChartInfos = async () => {
+      const result = await fetchNui<ChartData[]>("getChartInfos", {}, [
         {
           type: "Deposito",
           value: 220,
@@ -37,11 +40,16 @@ export default function ChartComponent() {
           value: 190,
         },
       ]);
-
       setChartData(result);
     };
-    getUserInfo();
+    getChartInfos();
   }, []);
+
+  // Atualizar gráfico em tempo real via evento do backend
+  useNuiEvent<ChartData[]>("updateChartInfos", (data) => {
+    setChartData(data);
+  });
+
   return (
     <Card className="h-full w-full">
       <CardContent>

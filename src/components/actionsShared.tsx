@@ -5,6 +5,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
 import { accountProps } from "./sections/accountShared";
+import { fetchNui, useNuiEvent } from "@/hooks/nui";
 
 const ActionsShared = ({
   type,
@@ -16,102 +17,50 @@ const ActionsShared = ({
   const [account, setAccount] = useState<accountProps>();
   const [amount, setAmount] = useState(0);
 
-  // Função para obter os dados mais atualizados do localStorage
-  const getLatestAccountData = () => {
-    const savedNavigation = localStorage.getItem("selectedAccount");
-    if (savedNavigation) {
-      try {
-        return JSON.parse(savedNavigation) as accountProps;
-      } catch (error) {
-        console.error("Erro ao analisar a navegação salva:", error);
-      }
-    }
-    return null;
-  };
-
   useEffect(() => {
-    const latestAccount = getLatestAccountData();
-    if (latestAccount) {
-      setAccount(latestAccount);
-    }
+    const fetchData = async () => {
+      const data = await fetchNui<accountProps>("getSharedAccount");
+      setAccount(data);
+    };
+    fetchData();
   }, []);
 
-  const handleAction = () => {
-    if (amount > 0) {
-      // Sempre obter os dados mais recentes da conta antes de realizar qualquer operação
-      const latestAccount = getLatestAccountData();
+  // Atualizar o estado da conta quando os dados mudarem
+  useNuiEvent<accountProps>("updateSharedAccount", (data) => {
+    setAccount(data);
+  });
 
-      if (!latestAccount) return;
+  const handleAction = async () => {
+    if (!account || amount <= 0) return;
 
-      let updatedAccount;
+    try {
+      let updatedAccount: accountProps | undefined;
 
       if (type === "Depositar") {
-        updatedAccount = {
-          ...latestAccount,
-          balance: latestAccount.balance + amount,
-          history: latestAccount.history
-            ? [
-                ...latestAccount.history,
-                {
-                  type: "Deposito",
-                  value: amount,
-                  date: new Date().toISOString(),
-                  id: 1,
-                },
-              ]
-            : [
-                {
-                  type: "Deposito",
-                  value: amount,
-                  date: new Date().toISOString(),
-                  id: 1,
-                },
-              ],
-        };
+        updatedAccount = await fetchNui<accountProps>("depositSharedAccount", {
+          accountId: account.id,
+          amount,
+        });
       } else {
-        if (amount > latestAccount.balance) {
+        if (amount > account.balance) {
           alert("Saldo insuficiente");
           return;
         }
-
-        updatedAccount = {
-          ...latestAccount,
-          balance:
-            latestAccount.balance - amount > latestAccount.balance
-              ? 0
-              : latestAccount.balance - amount,
-          history: latestAccount.history
-            ? [
-                ...latestAccount.history,
-                {
-                  type: "Retirada",
-                  value: amount,
-                  date: new Date().toISOString(),
-                  id: 1,
-                },
-              ]
-            : [
-                {
-                  type: "Retirada",
-                  value: amount,
-                  date: new Date().toISOString(),
-                  id: 1,
-                },
-              ],
-        };
+        updatedAccount = await fetchNui<accountProps>("withdrawSharedAccount", {
+          accountId: account.id,
+          amount,
+        });
       }
 
-      setAccount(updatedAccount);
+      if (updatedAccount) setAccount(updatedAccount);
 
-      localStorage.setItem("selectedAccount", JSON.stringify(updatedAccount));
-
-      // Resetar o campo de valor após a operação
       setAmount(0);
 
-      // Notificar o componente pai que a ação foi concluída
       if (onActionComplete) {
         onActionComplete();
       }
+    } catch (error) {
+      alert("Erro ao realizar a operação.");
     }
   };
 

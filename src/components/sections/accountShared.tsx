@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import DialogActions from "../dialogActionsShared";
 import { useRouter } from "next/navigation";
-import { fetchNui } from "@/hooks/nui";
+import { fetchNui, useNuiEvent } from "@/hooks/nui";
 
 type teamProps = {
   name: string;
@@ -29,9 +29,11 @@ export type accountProps = {
 const AccountShared = () => {
   const router = useRouter();
   const [accounts, setAccounts] = useState<accountProps[]>([]);
+
+  // Buscar contas compartilhadas do backend
   useEffect(() => {
     const getUserInfo = async () => {
-      const result = await fetchNui("getSharedAccounts", {}, [
+      const result = await fetchNui<accountProps[]>("getSharedAccounts", {}, [
         {
           id: 1,
           name: "Test Account",
@@ -62,66 +64,91 @@ const AccountShared = () => {
     getUserInfo();
   }, []);
 
-  const handleDelete = (id: number, e: React.MouseEvent) => {
-    // Impedir propagação do evento para o elemento pai
+  // Atualizar contas em tempo real via evento do backend
+  useNuiEvent<accountProps[]>(
+    "updateSharedAccounts",
+    (data: accountProps[]) => {
+      setAccounts(data);
+    }
+  );
+
+  // Excluir conta compartilhada
+  const handleDelete = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
-
-    const newAccounts = accounts.filter((account) => account.id !== id);
-    setAccounts(newAccounts);
-    localStorage.setItem("accounts", JSON.stringify(newAccounts));
+    try {
+      const updatedAccounts = await fetchNui<accountProps[]>(
+        "deleteSharedAccount",
+        { id }
+      );
+      setAccounts(updatedAccounts);
+    } catch {
+      // fallback visual
+      setAccounts((prev) => prev.filter((account) => account.id !== id));
+    }
   };
 
-  const handleCreate = ({ name, meta }: { name: string; meta: number }) => {
-    const newAccount = {
-      id: accounts.length + 1,
-      name: name,
-      meta: meta,
-      balance: 0,
-      team: [],
-    };
-    const updatedAccounts = [...accounts, newAccount];
-    setAccounts(updatedAccounts);
-    localStorage.setItem("accounts", JSON.stringify(updatedAccounts));
+  // Criar nova conta compartilhada
+  const handleCreate = async ({
+    name,
+    meta,
+  }: {
+    name: string;
+    meta: number;
+  }) => {
+    try {
+      const updatedAccounts = await fetchNui<accountProps[]>(
+        "createSharedAccount",
+        {
+          name,
+          meta,
+        }
+      );
+      setAccounts(updatedAccounts);
+    } catch {
+      // fallback visual
+      const newAccount: accountProps = {
+        id: accounts.length + 1,
+        name,
+        meta,
+        balance: 0,
+        team: [],
+      };
+      setAccounts((prev) => [...prev, newAccount]);
+    }
   };
 
-  const handleEdit = (
+  // Editar conta compartilhada
+  const handleEdit = async (
     id: number,
     { name, meta }: { name: string; meta: number },
     e?: React.MouseEvent
   ) => {
-    if (e) {
-      e.stopPropagation();
-    }
-
-    const newAccounts = accounts.map((account) => {
-      if (account.id === id) {
-        return {
-          ...account,
-          name: name,
-          meta: meta,
-        };
-      }
-      return account;
-    });
-
-    setAccounts(newAccounts);
-    localStorage.setItem("accounts", JSON.stringify(newAccounts));
-    if (id === accounts[0].id) {
-      localStorage.setItem("selectedAccount", JSON.stringify(newAccounts[0]));
+    if (e) e.stopPropagation();
+    try {
+      const updatedAccounts = await fetchNui<accountProps[]>(
+        "editSharedAccount",
+        {
+          id,
+          name,
+          meta,
+        }
+      );
+      setAccounts(updatedAccounts);
+    } catch {
+      // fallback visual
+      setAccounts((prev) =>
+        prev.map((account) =>
+          account.id === id ? { ...account, name, meta } : account
+        )
+      );
     }
   };
 
-  useEffect(() => {
-    localStorage.setItem("accounts", JSON.stringify(accounts));
-  }, [accounts]);
-
-  const handleSelect = (id: number) => {
+  // Selecionar conta compartilhada
+  const handleSelect = async (id: number) => {
     const selectedAccount = accounts.find((account) => account.id === id);
     if (selectedAccount) {
-      localStorage.setItem("selectedAccount", JSON.stringify(selectedAccount));
-      localStorage.setItem("navigation", JSON.stringify("dashboard"));
-
-      // Atualiza a navegação e redireciona
+      await fetchNui("selectSharedAccount", { id });
       router.push("/shared");
     }
   };
