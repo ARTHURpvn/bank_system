@@ -32,16 +32,6 @@ const HomeShared = () => {
   });
 
   // Exemplo de Deposito
-  const handleDeposit = async (amount: number) => {
-    try {
-      const updated = await fetchNui<accountProps>("depositSharedAccount", {
-        amount,
-      });
-      setAccount(updated);
-    } catch (error) {
-      console.error("Erro ao depositar:", error);
-    }
-  };
 
   const historyList = () => {
     const history = account?.history ?? [];

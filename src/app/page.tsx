@@ -16,6 +16,7 @@ export default function Home() {
   const handleNavigation = (navigation: string) => setNavigation(navigation);
 
   useNuiEvent("toggleScreen", (status: boolean) => {
+    console.log("toggleScreen", status);
     setOpen(status);
   });
 

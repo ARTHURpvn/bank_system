@@ -56,8 +56,8 @@ const DialogActions = ({ name }: { name: string }) => {
           meta: 1000,
           balance: 0,
           team: [
-            { id: 1, name: "Player 1", meta: 0, balance: 0 },
-            { id: 2, name: "Player 2", meta: 0, balance: 0 },
+            { id: 1, name: "Player 1" },
+            { id: 2, name: "Player 2" },
           ],
           history: [
             {
@@ -121,7 +121,7 @@ const DialogActions = ({ name }: { name: string }) => {
       setInputValue("");
       setOpen(false);
     } catch (error) {
-      toast.error("Erro ao adicionar membro");
+      toast.error("Erro ao adicionar membro" + "\n" + error);
     }
   };
 
@@ -156,7 +156,7 @@ const DialogActions = ({ name }: { name: string }) => {
       setInputValue("");
       setOpen(false);
     } catch (error) {
-      toast.error("Erro ao remover membro");
+      toast.error("Erro ao remover membro" + "\n" + error);
     }
   };
 
@@ -183,7 +183,7 @@ const DialogActions = ({ name }: { name: string }) => {
       setInputValue("");
       setOpen(false);
     } catch (error) {
-      toast.error("Erro ao depositar");
+      toast.error("Erro ao depositar" + "\n" + error);
     }
   };
 
@@ -215,7 +215,7 @@ const DialogActions = ({ name }: { name: string }) => {
       setInputValue("");
       setOpen(false);
     } catch (error) {
-      toast.error("Erro ao retirar");
+      toast.error("Erro ao retirar" + "\n" + error);
     }
   };
 

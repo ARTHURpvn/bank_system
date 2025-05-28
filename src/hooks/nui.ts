@@ -1,7 +1,20 @@
 import { MutableRefObject, useEffect, useRef } from "react";
+const noop = () => {};
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isEnvBrowser = (): boolean => !(window as any).invokeNative;
+interface NuiMessageData<T = unknown> {
+  action: string;
+  data: T;
+}
+
+interface FivemWindow extends Window {
+  GetParentResourceName?: () => string;
+}
+
+type NuiHandlerSignature<T> = (data: T) => void;
+
+export const isEnvBrowser = (): boolean => {
+  return typeof window !== "undefined";
+};
 
 export async function fetchNui<T = unknown>(
   eventName: string,
@@ -18,27 +31,14 @@ export async function fetchNui<T = unknown>(
 
   if (isEnvBrowser() && mockData) return mockData;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const resourceName = (window as any).GetParentResourceName
-  
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ? (window as any).GetParentResourceName()
-    : "nui-frame-app";
+  const resourceName =
+    (window as FivemWindow).GetParentResourceName?.() ?? "nui-frame-app";
 
   const resp = await fetch(`https://${resourceName}/${eventName}`, options);
   const respFormatted = await resp.json();
 
   return respFormatted;
 }
-
-const noop = () => {};
-
-interface NuiMessageData<T = unknown> {
-  action: string;
-  data: T;
-}
-
-type NuiHandlerSignature<T> = (data: T) => void;
 
 export const useNuiEvent = <T = unknown>(
   action: string,
@@ -51,12 +51,10 @@ export const useNuiEvent = <T = unknown>(
   }, [handler]);
 
   useEffect(() => {
-    const eventListener = (event: MessageEvent<NuiMessageData<T>>) => {
-      const { action: eventAction, data } = event.data;
-      if (savedHandler.current) {
-        if (eventAction === action) {
-          savedHandler.current(data);
-        }
+    const eventListener = (event: MessageEvent) => {
+      const nuiData = event.data as NuiMessageData<T>;
+      if (nuiData.action === action && savedHandler.current) {
+        savedHandler.current(nuiData.data);
       }
     };
     window.addEventListener("message", eventListener);
