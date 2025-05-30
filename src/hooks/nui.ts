@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
 import { MutableRefObject, useEffect, useRef } from "react";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isEnvBrowser = (): boolean => !(window as any).invokeNative;
+export const isEnvBrowser = (): boolean =>
+  typeof window !== "undefined" && !(window as any).invokeNative;
 
 export async function fetchNui<T = unknown>(
   eventName: string,
@@ -16,14 +19,13 @@ export async function fetchNui<T = unknown>(
     body: JSON.stringify(data),
   };
 
-  if (isEnvBrowser() && mockData) return mockData;
+  if (typeof window !== "undefined" && isEnvBrowser() && mockData)
+    return mockData;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const resourceName = (window as any).GetParentResourceName
-  
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ? (window as any).GetParentResourceName()
-    : "nui-frame-app";
+  const resourceName =
+    typeof window !== "undefined" && (window as any).GetParentResourceName
+      ? (window as any).GetParentResourceName()
+      : "nui-frame-app";
 
   const resp = await fetch(`https://${resourceName}/${eventName}`, options);
   const respFormatted = await resp.json();
@@ -51,6 +53,7 @@ export const useNuiEvent = <T = unknown>(
   }, [handler]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const eventListener = (event: MessageEvent<NuiMessageData<T>>) => {
       const { action: eventAction, data } = event.data;
       if (savedHandler.current) {

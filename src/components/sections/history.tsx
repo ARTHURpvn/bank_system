@@ -1,3 +1,5 @@
+"use client";
+
 import { PiggyBankIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchNui, useNuiEvent } from "@/hooks/nui";
