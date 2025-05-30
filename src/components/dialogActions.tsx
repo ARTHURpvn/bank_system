@@ -58,6 +58,7 @@ const DialogActions = ({ name }: { name: string }) => {
           team: [
             { id: 1, name: "Player 1"},
             { id: 2, name: "Player 2"},
+
           ],
           history: [
             {
@@ -122,6 +123,7 @@ const DialogActions = ({ name }: { name: string }) => {
       setOpen(false);
     } catch (error) {
       toast.error(`Erro ao adicionar membro: ${error}`);
+
     }
   };
 

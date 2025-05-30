@@ -61,6 +61,7 @@ const ActionsShared = ({
       }
     } catch (error) {
       alert(`Erro ao realizar a operação: ${error}`);
+
     }
   };
 
