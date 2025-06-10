@@ -17,7 +17,6 @@ const HeaderShared = ({ navigation, handleNavigation }: HeaderProps) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Pode retornar um array ou objeto, depende do backend
       const data = await fetchNui<accountProps | accountProps[]>(
         "getSharedAccounts",
         {},
@@ -46,7 +45,6 @@ const HeaderShared = ({ navigation, handleNavigation }: HeaderProps) => {
           ],
         }
       );
-      // Se vier array, pega o primeiro
       if (Array.isArray(data)) {
         setAccount(data[0]);
       } else {

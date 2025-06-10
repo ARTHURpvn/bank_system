@@ -163,7 +163,7 @@ const DialogActions = ({ name }: { name: string }) => {
   };
 
   // Função para lidar com depósitos
-  const handleDepositShared = async () => {
+  const handleDeposit = async () => {
     const value = parseFloat(inputValue);
     if (isNaN(value) || value <= 0) {
       toast.error("Por favor, insira um valor válido");
@@ -174,7 +174,7 @@ const DialogActions = ({ name }: { name: string }) => {
 
     try {
       const updatedAccount = await fetchNui<accountProps>(
-        "depositSharedAccount",
+        "depositAccount",
         {
           accountId: account.id,
           value,
@@ -190,7 +190,7 @@ const DialogActions = ({ name }: { name: string }) => {
   };
 
   // Função para lidar com retiradas
-  const handleWithdrawShared = async () => {
+  const handleWithdraw = async () => {
     const value = parseFloat(inputValue);
     if (isNaN(value) || value <= 0) {
       toast.error("Por favor, insira um valor válido");
@@ -206,7 +206,7 @@ const DialogActions = ({ name }: { name: string }) => {
 
     try {
       const updatedAccount = await fetchNui<accountProps>(
-        "withdrawSharedAccount",
+        "withdrawAccount",
         {
           accountId: account.id,
           value,
@@ -221,14 +221,41 @@ const DialogActions = ({ name }: { name: string }) => {
     }
   };
 
+  // Função para ligar com transferências
+  const handleTransfer = async () => {
+    const id = parseInt(inputValue);
+    if (isNaN(id) || id <= 0) {
+      toast.error("Por favor, insira um ID válido");
+      return;
+    }
+
+    // Chama o backend para transferir
+    try {
+      const updatedAccount = await fetchNui<accountProps>(
+        "transferAccount",
+        {
+          accountId: account?.id,
+          memberId: id,
+        }
+      );
+      if (updatedAccount) setAccount(updatedAccount);
+      toast.success(`Transferência para o jogador ${id} realizada com sucesso`);
+      setInputValue("");
+      setOpen(false);
+    } catch (error) {
+      toast.error(`Erro ao transferir: ${error}`);
+    }
+  }
+
+
   // Escolher a ação com base no nome
   const handleConfirm = () => {
     switch (name) {
       case "Depositar":
-        handleDepositShared();
+        handleDeposit();
         break;
       case "Retirar":
-        handleWithdrawShared();
+        handleWithdraw();
         break;
       case "Adicionar":
         handleAddTeamMember();
@@ -237,7 +264,7 @@ const DialogActions = ({ name }: { name: string }) => {
         handleRemoveTeamMember();
         break;
       default:
-        // Transferir ou outra ação
+        handleTransfer();
         break;
     }
   };
