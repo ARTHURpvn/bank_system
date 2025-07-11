@@ -1,11 +1,10 @@
-"use client";
 
 import { HandCoinsIcon, PiggyBankIcon } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
-import { accountProps } from "./sections/accountShared";
 import { fetchNui, useNuiEvent } from "@/hooks/nui";
+import type {accountProps} from "@/components/sections/accountShared.tsx";
 
 const ActionsShared = ({
   type,

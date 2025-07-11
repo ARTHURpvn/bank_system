@@ -3,7 +3,7 @@
 import { PiggyBankIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchNui, useNuiEvent } from "@/hooks/nui";
-import { historyProps } from "./accountShared";
+import type {historyProps} from "@/components/sections/accountShared.tsx";
 
 const History = () => {
   const [history, setHistory] = useState<historyProps[]>([]);

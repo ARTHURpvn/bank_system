@@ -2,10 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { HistoryIcon, HomeIcon, ReceiptTextIcon, X } from "lucide-react";
-import Image from "next/image";
 import { useEffect, useState } from "react";
-import { accountProps } from "./accountShared";
 import { fetchNui, useNuiEvent } from "@/hooks/nui";
+import type {accountProps} from "@/components/sections/accountShared.tsx";
 
 interface HeaderProps {
   navigation: string;
@@ -62,7 +61,7 @@ const HeaderShared = ({ navigation, handleNavigation }: HeaderProps) => {
   return (
     <header className="flex items-center justify-between w-full">
       <div className="flex items-center">
-        <Image
+        <img
           src="/zoro.webp"
           alt="Logo"
           width={67}

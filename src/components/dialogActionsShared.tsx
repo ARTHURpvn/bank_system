@@ -1,9 +1,8 @@
-"use client";
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
+  Dialog, DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -13,9 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DialogClose } from "@radix-ui/react-dialog";
-import { VariantProps } from "class-variance-authority";
 import { PenIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import type {VariantProps} from "class-variance-authority";
 
 type valueProps = {
   name: string;

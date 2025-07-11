@@ -1,10 +1,9 @@
-"use client";
 
 import { HandCoinsIcon, PiggyBankIcon } from "lucide-react";
-import { accountProps } from "./accountShared";
 import { useEffect, useState } from "react";
 import { ScrollArea } from "../ui/scroll-area";
 import { fetchNui, useNuiEvent } from "@/hooks/nui";
+import type {accountProps} from "@/components/sections/accountShared.tsx";
 
 const HistoryShared = () => {
   const [account, setAccount] = useState<accountProps>();

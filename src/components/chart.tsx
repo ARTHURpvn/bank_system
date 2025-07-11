@@ -1,10 +1,10 @@
-"use client";
 
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
 
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  ChartConfig,
+  type ChartConfig,
+
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,

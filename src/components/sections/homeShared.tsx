@@ -1,4 +1,3 @@
-"use client";
 
 import {
   HandCoinsIcon,
@@ -9,9 +8,9 @@ import {
 
 import DialogActions from "../dialogActions";
 import { useEffect, useState } from "react";
-import { accountProps } from "./accountShared";
 import ActionsShared from "../actionsShared";
 import { fetchNui, useNuiEvent } from "@/hooks/nui";
+import type {accountProps} from "@/components/sections/accountShared.tsx";
 
 const HomeShared = () => {
   const [account, setAccount] = useState<accountProps>();

@@ -1,4 +1,3 @@
-"use client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { VariantProps } from "class-variance-authority";
 import {
   HandCoinsIcon,
   HandshakeIcon,
@@ -21,9 +19,10 @@ import {
   UserPlusIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { accountProps } from "./sections/accountShared";
-import { toast } from "sonner";
 import { fetchNui, useNuiEvent } from "@/hooks/nui";
+import type {accountProps} from "@/components/sections/accountShared.tsx";
+import {toast} from "sonner";
+import type {VariantProps} from "class-variance-authority";
 
 type valueProps = {
   name: string;
