@@ -1,4 +1,3 @@
-
 import {
   HandCoinsIcon,
   PiggyBankIcon,
@@ -10,7 +9,7 @@ import DialogActions from "../dialogActions";
 import { useEffect, useState } from "react";
 import ActionsShared from "../actionsShared";
 import { fetchNui, useNuiEvent } from "@/hooks/nui";
-import type {accountProps} from "@/components/sections/accountShared.tsx";
+import type { accountProps } from "@/components/sections/accountShared.tsx";
 
 const HomeShared = () => {
   const [account, setAccount] = useState<accountProps>();
@@ -18,6 +17,11 @@ const HomeShared = () => {
   // Buscar dados do backend ao montar
   const loadAccountData = async () => {
     const data = await fetchNui<accountProps>("getSharedAccount");
+    if (data.currency) {
+      data.currency = data.currency.toUpperCase();
+      // @ts-ignore
+      window.currency = data.currency;
+    }
     setAccount(data);
   };
 
@@ -41,7 +45,6 @@ const HomeShared = () => {
   //     console.error("Erro ao depositar:", error);
   //   }
   // };
-
 
   const historyList = () => {
     const history = account?.history ?? [];
@@ -95,14 +98,20 @@ const HomeShared = () => {
         <div className="flex p-6 justify-between w-full h-40 rounded-md bg-[#083200]/80">
           <div className="space-y-4 w-[49%]">
             <p className="text-xl">DINHEIRO ARRECADADO</p>
-            <p className="text-4xl font-black">$ {account?.balance}</p>
+            <p className="text-4xl font-black">
+              {account?.currency} {account?.balance}
+            </p>
           </div>
           <div className="space-y-4 w-[49%]">
             <p className="text-xl">META</p>
             <div className="flex gap-2">
-              <p className="text-4xl font-black">$ {account?.balance}</p>
+              <p className="text-4xl font-black">
+                {account?.currency} {account?.balance}
+              </p>
               <p className="text-4xl font-black">/</p>
-              <p className="text-4xl font-black">$ {account?.meta}</p>
+              <p className="text-4xl font-black">
+                {account?.currency} {account?.meta}
+              </p>
             </div>
           </div>
         </div>

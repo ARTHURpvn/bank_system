@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -53,7 +52,11 @@ const BillingPopover = ({
             <div>
               {multas > 0 ? (
                 <div className="flex w-full items-center justify-between">
-                  <p>Total: ${multas}</p>
+                  <p>
+                    {/* @ts-ignore */}
+                    Total: {window.currency}
+                    {multas}
+                  </p>
                   <Button variant={"green_action"}>Pagar</Button>
                 </div>
               ) : (

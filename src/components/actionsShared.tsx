@@ -1,10 +1,9 @@
-
 import { HandCoinsIcon, PiggyBankIcon } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
 import { fetchNui, useNuiEvent } from "@/hooks/nui";
-import type {accountProps} from "@/components/sections/accountShared.tsx";
+import type { accountProps } from "@/components/sections/accountShared.tsx";
 
 const ActionsShared = ({
   type,
@@ -60,7 +59,6 @@ const ActionsShared = ({
       }
     } catch (error) {
       alert(`Erro ao realizar a operação: ${error}`);
-
     }
   };
 
@@ -78,7 +76,7 @@ const ActionsShared = ({
 
       <Input
         type="number"
-        placeholder="$ 0,00"
+        placeholder="0,00"
         min={0}
         value={amount > 0 ? amount : ""}
         onChange={(e) => setAmount(Number(e.target.value))}
