@@ -184,7 +184,7 @@ const AccountShared = () => {
                 />
                 <DialogActions
                   name="Excluir"
-                  action={(data, e) => handleDelete(account.id, e!)}
+                  action={(_, e) => handleDelete(account.id, e!)}
                 />
               </div>
             </div>

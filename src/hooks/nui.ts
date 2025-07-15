@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { MutableRefObject, useEffect, useRef } from "react";
+import { type MutableRefObject, useEffect, useRef } from "react";
 const noop = () => {};
 
 interface NuiMessageData<T = unknown> {
   action: string;
   data: T;
 }
-
 
 type NuiHandlerSignature<T> = (data: T) => void;
 
@@ -32,11 +31,10 @@ export async function fetchNui<T = unknown>(
   if (typeof window !== "undefined" && isEnvBrowser() && mockData)
     return mockData;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const resourceName = (window as any).GetParentResourceName
-  
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ? (window as any).GetParentResourceName()
+    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).GetParentResourceName()
     : "nui-frame-app";
 
   const resp = await fetch(`https://${resourceName}/${eventName}`, options);
