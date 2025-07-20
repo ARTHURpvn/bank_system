@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,9 +19,9 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchNui, useNuiEvent } from "@/hooks/nui";
-import type {accountProps} from "@/components/sections/accountShared.tsx";
-import {toast} from "sonner";
-import type {VariantProps} from "class-variance-authority";
+import type { accountProps } from "@/components/sections/accountShared.tsx";
+import { toast } from "sonner";
+import type { VariantProps } from "class-variance-authority";
 
 type valueProps = {
   name: string;
@@ -43,115 +42,100 @@ const DialogActions = ({ name }: { name: string }) => {
   const [account, setAccount] = useState<accountProps | null>(null);
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState<string>("");
+  const [transferId, setTransferId] = useState<string>("");
+  const [transferValue, setTransferValue] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchNui<accountProps>(
-        "getSharedAccounts",
-        {},
-        {
-          id: 1,
-          name: "Test Account",
-          meta: 1000,
-          balance: 0,
-          team: [
-            { id: 1, name: "Player 1"},
-            { id: 2, name: "Player 2"},
-
-          ],
-          history: [
-            {
-              type: "Deposito",
-              value: 220,
-              date: new Date().toISOString(),
-              id: 1,
-            },
-            {
-              type: "Retirar",
-              value: 120,
-              date: new Date().toISOString(),
-              id: 2,
-            },
-          ],
-        }
+          "getSharedAccounts",
+          {},
+          {
+            id: 1,
+            name: "Test Account",
+            meta: 1000,
+            balance: 0,
+            team: [
+              { id: 1, name: "Player 1" },
+              { id: 2, name: "Player 2" },
+            ],
+            history: [
+              {
+                type: "Deposito",
+                value: 220,
+                date: new Date().toISOString(),
+                id: 1,
+              },
+              {
+                type: "Retirar",
+                value: 120,
+                date: new Date().toISOString(),
+                id: 2,
+              },
+            ],
+          }
       );
       setAccount(data);
     };
     fetchData();
   }, []);
 
-  // Atualizar o estado da conta quando os dados mudarem
   useNuiEvent<accountProps>("updateSharedAccount", (data) => {
     setAccount(data);
   });
 
-  // Função para adicionar uma pessoa ao time
   const handleAddTeamMember = async () => {
     if (!account) return;
 
     const id = parseInt(inputValue);
-
     if (isNaN(id) || id <= 0) {
       toast.error("Por favor, insira um ID válido");
       return;
     }
 
-    // Verificar se o ID já existe na equipe
     if (account.team && account.team.some((member) => member.id === id)) {
       toast.error("Um membro com este ID já existe na equipe");
       return;
     }
 
-    // Chama o backend para adicionar o membro
     try {
-      const updatedAccount = await fetchNui<accountProps>(
-        "addSharedTeamMember",
-        {
-          accountId: account.id,
-          member: {
-            id,
-            name: `Jogador ${id}`,
-            meta: 0,
-            balance: 0,
-          } as TeamMember,
-        }
-      );
+      const updatedAccount = await fetchNui<accountProps>("addSharedTeamMember", {
+        accountId: account.id,
+        member: {
+          id,
+          name: `Jogador ${id}`,
+          meta: 0,
+          balance: 0,
+        } as TeamMember,
+      });
       if (updatedAccount) setAccount(updatedAccount);
       toast.success(`Jogador ${id} adicionado com sucesso`);
       setInputValue("");
       setOpen(false);
     } catch (error) {
       toast.error(`Erro ao adicionar membro: ${error}`);
-
     }
   };
 
-  // Função para remover uma pessoa do time
   const handleRemoveTeamMember = async () => {
     if (!account) return;
 
     const id = parseInt(inputValue);
-
     if (isNaN(id) || id <= 0) {
       toast.error("Por favor, insira um ID válido");
       return;
     }
 
-    // Verificar se o ID existe na equipe
     if (!account.team || !account.team.some((member) => member.id === id)) {
       toast.error("Nenhum membro com este ID foi encontrado na equipe");
       return;
     }
 
-    // Chama o backend para remover o membro
     try {
-      const updatedAccount = await fetchNui<accountProps>(
-        "removeSharedTeamMember",
-        {
-          accountId: account.id,
-          memberId: id,
-        }
-      );
+      const updatedAccount = await fetchNui<accountProps>("removeSharedTeamMember", {
+        accountId: account.id,
+        memberId: id,
+      });
       if (updatedAccount) setAccount(updatedAccount);
       toast.success(`Jogador ${id} removido com sucesso`);
       setInputValue("");
@@ -161,7 +145,6 @@ const DialogActions = ({ name }: { name: string }) => {
     }
   };
 
-  // Função para lidar com depósitos
   const handleDeposit = async () => {
     const value = parseFloat(inputValue);
     if (isNaN(value) || value <= 0) {
@@ -172,13 +155,10 @@ const DialogActions = ({ name }: { name: string }) => {
     if (!account) return;
 
     try {
-      const updatedAccount = await fetchNui<accountProps>(
-        "depositAccount",
-        {
-          accountId: account.id,
-          value,
-        }
-      );
+      const updatedAccount = await fetchNui<accountProps>("depositAccount", {
+        accountId: account.id,
+        value,
+      });
       if (updatedAccount) setAccount(updatedAccount);
       toast.success(`Depósito de ${value} realizado com sucesso`);
       setInputValue("");
@@ -188,7 +168,6 @@ const DialogActions = ({ name }: { name: string }) => {
     }
   };
 
-  // Função para lidar com retiradas
   const handleWithdraw = async () => {
     const value = parseFloat(inputValue);
     if (isNaN(value) || value <= 0) {
@@ -204,13 +183,10 @@ const DialogActions = ({ name }: { name: string }) => {
     }
 
     try {
-      const updatedAccount = await fetchNui<accountProps>(
-        "withdrawAccount",
-        {
-          accountId: account.id,
-          value,
-        }
-      );
+      const updatedAccount = await fetchNui<accountProps>("withdrawAccount", {
+        accountId: account.id,
+        value,
+      });
       if (updatedAccount) setAccount(updatedAccount);
       toast.success(`Retirada de ${value} realizada com sucesso`);
       setInputValue("");
@@ -220,34 +196,43 @@ const DialogActions = ({ name }: { name: string }) => {
     }
   };
 
-  // Função para ligar com transferências
   const handleTransfer = async () => {
-    const id = parseInt(inputValue);
+    const id = parseInt(transferId);
+    const value = parseFloat(transferValue);
+
     if (isNaN(id) || id <= 0) {
       toast.error("Por favor, insira um ID válido");
       return;
     }
 
-    // Chama o backend para transferir
+    if (isNaN(value) || value <= 0) {
+      toast.error("Por favor, insira um valor válido para transferir");
+      return;
+    }
+
+    if (!account) return;
+
+    if (account.balance < value) {
+      toast.error("Saldo insuficiente para essa transferência");
+      return;
+    }
+
     try {
-      const updatedAccount = await fetchNui<accountProps>(
-        "transferAccount",
-        {
-          accountId: account?.id,
-          memberId: id,
-        }
-      );
+      const updatedAccount = await fetchNui<accountProps>("transferAccount", {
+        accountId: account.id,
+        memberId: id,
+        value,
+      });
       if (updatedAccount) setAccount(updatedAccount);
-      toast.success(`Transferência para o jogador ${id} realizada com sucesso`);
-      setInputValue("");
+      toast.success(`Transferência de ${value} para o jogador ${id} realizada com sucesso`);
+      setTransferId("");
+      setTransferValue("");
       setOpen(false);
     } catch (error) {
       toast.error(`Erro ao transferir: ${error}`);
     }
-  }
+  };
 
-
-  // Escolher a ação com base no nome
   const handleConfirm = () => {
     switch (name) {
       case "Depositar":
@@ -266,6 +251,11 @@ const DialogActions = ({ name }: { name: string }) => {
         handleTransfer();
         break;
     }
+
+    // Resetar campos
+    setInputValue("");
+    setTransferId("");
+    setTransferValue("");
   };
 
   let value: valueProps;
@@ -313,41 +303,62 @@ const DialogActions = ({ name }: { name: string }) => {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size={value.size ? value.size : "lg"} variant={value.variant}>
-          {value.icon}
-          {value.name}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="fixed z-1000">
-        <DialogHeader className="mb-6">
-          <DialogTitle className="flex gap-4 justify-center items-center text-3xl">
-            {value.icon} {value.name}
-          </DialogTitle>
-          <DialogDescription className="hidden">{value.name}</DialogDescription>
-        </DialogHeader>
-        <div className="my-6 space-y-6">
-          <div>
-            <Label>{value.label}</Label>
-            <Input
-              type={
-                name === "Depositar" || name === "Retirar" ? "number" : "text"
-              }
-              placeholder={`Insira o ${value.label}`}
-              min={0}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-            />
-          </div>
-        </div>
-        <DialogFooter className="w-full items-center">
-          <Button size={"lg"} variant={value.variant} onClick={handleConfirm}>
-            Confirmar
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button size={value.size ? value.size : "lg"} variant={value.variant}>
+            {value.icon}
+            {value.name}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </DialogTrigger>
+        <DialogContent className="fixed z-1000">
+          <DialogHeader className="mb-6">
+            <DialogTitle className="flex gap-4 justify-center items-center text-3xl">
+              {value.icon} {value.name}
+            </DialogTitle>
+            <DialogDescription className="hidden">{value.name}</DialogDescription>
+          </DialogHeader>
+          <div className="my-6 space-y-6">
+            {name === "Transferir" ? (
+                <>
+                  <div className={"space-y-3"}>
+                    <Label>ID do Jogador</Label>
+                    <Input
+                        type="number"
+                        placeholder="Insira o ID do jogador"
+                        value={transferId}
+                        onChange={(e) => setTransferId(e.target.value)}
+                    />
+                  </div>
+                  <div className={"space-y-3"}>
+                    <Label>Valor</Label>
+                    <Input
+                        type="number"
+                        placeholder="Insira o valor a transferir"
+                        value={transferValue}
+                        onChange={(e) => setTransferValue(e.target.value)}
+                    />
+                  </div>
+                </>
+            ) : (
+                <div className={"space-y-3"}>
+                  <Label>{value.label}</Label>
+                  <Input
+                      type={name === "Depositar" || name === "Retirar" ? "number" : "text"}
+                      placeholder={`Insira o ${value.label}`}
+                      min={0}
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                  />
+                </div>
+            )}
+          </div>
+          <DialogFooter className="w-full items-center">
+            <Button size="lg" variant={value.variant} onClick={handleConfirm}>
+              Confirmar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
   );
 };
 
