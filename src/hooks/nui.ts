@@ -11,9 +11,7 @@ interface NuiMessageData<T = unknown> {
 
 type NuiHandlerSignature<T> = (data: T) => void;
 
-export const isEnvBrowser = (): boolean => {
-  return typeof window !== "undefined";
-};
+export const isEnvBrowser = (): boolean => !(window as any).invokeNative;
 
 export async function fetchNui<T = unknown>(
   eventName: string,

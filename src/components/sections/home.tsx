@@ -69,11 +69,11 @@ const HomeComponent = () => {
         {/* LADO ESQUERDO */}
         <div>
           <section className="relative w-[450px] h-[280px]">
-            <img src="/cartao.png" alt="Logo" className="object-cover" />
+            <img src="./cartao.png" alt="Logo" className="object-cover" />
           </section>
 
           <section className="flex justify-between mt-6">
-            <div className="w-[48%] space-y-5 bg-[#106000]/20 p-2 h-30 border rounded-md">
+            <div className="w-[48%] space-y-5 bg-[#106000]/20 p-2 h-30 border border-[#106000]/50 rounded-md text-white">
               <div className="flex items-center gap-2">
                 <CircleDollarSignIcon />
                 <p className="text-xl">Bolso</p>
@@ -83,7 +83,7 @@ const HomeComponent = () => {
               </p>
             </div>
 
-            <div className="w-[48%] space-y-5 bg-[#106000]/20 p-2 h-30 border rounded-md">
+            <div className="w-[48%] space-y-5 bg-[#106000]/20 p-2 h-30 border border-[#106000]/50 rounded-md text-white">
               <div className="flex items-center gap-2">
                 <LandmarkIcon />
                 <p className="text-xl">Banco</p>
